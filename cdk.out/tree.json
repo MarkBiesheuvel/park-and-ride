@@ -1,0 +1,243 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "constructs.Construct",
+          "version": "10.0.105"
+        }
+      },
+      "ParkAndRide": {
+        "id": "ParkAndRide",
+        "path": "ParkAndRide",
+        "children": {
+          "Database": {
+            "id": "Database",
+            "path": "ParkAndRide/Database",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::Timestream::Database",
+              "aws:cdk:cloudformation:props": {}
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_timestream.CfnDatabase",
+              "version": "2.19.0"
+            }
+          },
+          "Table": {
+            "id": "Table",
+            "path": "ParkAndRide/Table",
+            "attributes": {
+              "aws:cdk:cloudformation:type": "AWS::Timestream::Table",
+              "aws:cdk:cloudformation:props": {
+                "databaseName": {
+                  "Ref": "Database"
+                },
+                "retentionProperties": {
+                  "MemoryStoreRetentionPeriodInHours": 48,
+                  "MagneticStoreRetentionPeriodInDays": 365
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_timestream.CfnTable",
+              "version": "2.19.0"
+            }
+          },
+          "FetchFunction": {
+            "id": "FetchFunction",
+            "path": "ParkAndRide/FetchFunction",
+            "children": {
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "ParkAndRide/FetchFunction/ServiceRole",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "ParkAndRide/FetchFunction/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.19.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.19.0"
+                }
+              },
+              "Code": {
+                "id": "Code",
+                "path": "ParkAndRide/FetchFunction/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "ParkAndRide/FetchFunction/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.19.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "ParkAndRide/FetchFunction/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.19.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.19.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "ParkAndRide/FetchFunction/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "code": {
+                      "s3Bucket": "cdk-hnb659fds-assets-296868594847-eu-central-1",
+                      "s3Key": "d8d42f1a0f9918af31055bfbf22b7dcfd4910a9e45992cca6b3cac336170206b.zip"
+                    },
+                    "role": {
+                      "Fn::GetAtt": [
+                        "FetchFunctionServiceRoleB5203A19",
+                        "Arn"
+                      ]
+                    },
+                    "description": "Fetches data from source",
+                    "handler": "index.handler",
+                    "runtime": "python3.8",
+                    "timeout": 10
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.19.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.19.0"
+            }
+          },
+          "Rule": {
+            "id": "Rule",
+            "path": "ParkAndRide/Rule",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "ParkAndRide/Rule/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Events::Rule",
+                  "aws:cdk:cloudformation:props": {
+                    "scheduleExpression": "cron(*/5 * * * ? *)",
+                    "state": "ENABLED",
+                    "targets": [
+                      {
+                        "id": "Target0",
+                        "arn": {
+                          "Fn::GetAtt": [
+                            "FetchFunction02CD8A1F",
+                            "Arn"
+                          ]
+                        },
+                        "retryPolicy": {
+                          "maximumRetryAttempts": 3,
+                          "maximumEventAgeInSeconds": 300
+                        },
+                        "input": "{\"url\":\"https://penr.stachanov.com/penr/currentAvailability/\"}"
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_events.CfnRule",
+                  "version": "2.19.0"
+                }
+              },
+              "AllowEventRuleParkAndRideFetchFunctionC7D7795F": {
+                "id": "AllowEventRuleParkAndRideFetchFunctionC7D7795F",
+                "path": "ParkAndRide/Rule/AllowEventRuleParkAndRideFetchFunctionC7D7795F",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                  "aws:cdk:cloudformation:props": {
+                    "action": "lambda:InvokeFunction",
+                    "functionName": {
+                      "Fn::GetAtt": [
+                        "FetchFunction02CD8A1F",
+                        "Arn"
+                      ]
+                    },
+                    "principal": "events.amazonaws.com",
+                    "sourceArn": {
+                      "Fn::GetAtt": [
+                        "Rule4C995B7F",
+                        "Arn"
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                  "version": "2.19.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_events.Rule",
+              "version": "2.19.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.19.0"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "aws-cdk-lib.App",
+      "version": "2.19.0"
+    }
+  }
+}

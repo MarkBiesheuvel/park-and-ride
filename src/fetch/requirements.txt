@@ -1,0 +1,3 @@
+requests==2.27.1
+xextract==0.1.8
+lxml==4.6.4

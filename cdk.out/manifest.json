@@ -1,0 +1,94 @@
+{
+  "version": "16.0.0",
+  "artifacts": {
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    },
+    "ParkAndRide.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "ParkAndRide.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "ParkAndRide": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://296868594847/eu-central-1",
+      "properties": {
+        "templateFile": "ParkAndRide.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::296868594847:role/cdk-hnb659fds-deploy-role-296868594847-eu-central-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::296868594847:role/cdk-hnb659fds-cfn-exec-role-296868594847-eu-central-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-296868594847-eu-central-1/1d724d303c00c9e2383f893b256101a24392dc4a0abdf3331497744d21671c39.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "ParkAndRide.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::296868594847:role/cdk-hnb659fds-lookup-role-296868594847-eu-central-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "ParkAndRide.assets"
+      ],
+      "metadata": {
+        "/ParkAndRide/Database": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Database"
+          }
+        ],
+        "/ParkAndRide/Table": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Table"
+          }
+        ],
+        "/ParkAndRide/FetchFunction/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FetchFunctionServiceRoleB5203A19"
+          }
+        ],
+        "/ParkAndRide/FetchFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FetchFunction02CD8A1F"
+          }
+        ],
+        "/ParkAndRide/Rule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Rule4C995B7F"
+          }
+        ],
+        "/ParkAndRide/Rule/AllowEventRuleParkAndRideFetchFunctionC7D7795F": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RuleAllowEventRuleParkAndRideFetchFunctionC7D7795F73530E16"
+          }
+        ],
+        "/ParkAndRide/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/ParkAndRide/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "ParkAndRide"
+    }
+  }
+}
