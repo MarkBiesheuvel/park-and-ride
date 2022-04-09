@@ -3,14 +3,20 @@ from boto3 import client
 from time import time
 from os import environ
 
-if 'TABLE_NAME' in environ:
-    database_name, table_name = environ['TABLE_NAME'].split('|')
-    timestream = client('timestream-write')
-else:
-    exit('Environment variable "TABLE_NAME" not set')
+if 'DATABASE_NAME' not in environ or 'TABLE_NAME' not in environ:
+    exit('Environment variables not set')
+
+database_name = environ['DATABASE_NAME']
+table_name = environ['TABLE_NAME']
+timestream = client('timestream-write')
 
 
-def handler(event, context):
+def handler(locations, context):
+    common_attributes = {
+        'Time': str(int(time())),
+        'TimeUnit': 'SECONDS'
+    }
+
     records = [
         {
             'Dimensions': [
@@ -21,24 +27,15 @@ def handler(event, context):
                 }
             ],
             'MeasureName': 'Availability',
-            'MeasureValue': location['Availability'],
+            'MeasureValue': str(location['Availability']),
             'MeasureValueType': 'BIGINT',
         }
-        for location in event
+        for location in locations
     ]
 
     timestream.write_records(
         DatabaseName=database_name,
         TableName=table_name,
-        CommonAttributes={
-            'Time': int(time()),
-            'TimeUnit': 'SECONDS'
-        },
+        CommonAttributes=common_attributes,
         Records=records,
     )
-
-
-if __name__ == "__main__":
-    event = [{'Location': 'P+R RAI', 'Availability': 0}, {'Location': 'P+R Johan Cruijff ArenA', 'Availability': 1852}, {'Location': 'P+R Zeeburg 3', 'Availability': 179}, {'Location': 'P+R Noord', 'Availability': 161}, {'Location': "P+R Boven 't Y", 'Availability': 141}, {'Location': 'P+R Bos en Lommer', 'Availability': 88}, {'Location': 'P+R Zeeburg 2', 'Availability': 85}, {'Location': 'P+R Olympisch Stadion', 'Availability': 68}, {'Location': 'P+R Sloterdijk', 'Availability': 63}, {'Location': 'P+R Zeeburg 1', 'Availability': 56}, {'Location': 'Weekend P+R VUmc', 'Availability': 0}]
-    response = handler(event, None)
-    print(response)

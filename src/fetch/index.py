@@ -23,5 +23,4 @@ parser = Group(
 
 def handler(event, context):
     response = requests.get(event['url'])
-    data = parser.parse(response.text)
-    print(data)
+    return parser.parse(response.text)
