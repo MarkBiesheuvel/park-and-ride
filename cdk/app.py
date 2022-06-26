@@ -83,6 +83,31 @@ class ParkAndRideStack(Stack):
             ],
         )
 
+        api_function = lambda_.Function(self, 'Api',
+            runtime=lambda_.Runtime.PYTHON_3_8,
+            handler='index.handler',
+            code=lambda_.Code.from_asset('./src/api'),
+            environment={
+                'DATABASE_NAME': database.ref,
+                'TABLE_NAME': table.attr_name,
+            },
+        )
+        api_function.add_function_url(
+            auth_type=lambda_.FunctionUrlAuthType.NONE
+        )
+        api_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['timestream:Select'],
+                resources=[table.attr_arn],
+            )
+        )
+        api_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['timestream:DescribeEndpoints'],
+                resources=['*'],
+            )
+        )
+
 
 app = App()
 ParkAndRideStack(app, 'ParkAndRide',
