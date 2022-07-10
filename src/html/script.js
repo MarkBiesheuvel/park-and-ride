@@ -24,8 +24,6 @@
     }
 
     draw (data, first) {
-      console.log(first)
-
       const xScaleFn = d3.scaleBand()
         .domain(['6:00', '7:00', '8:00', '9:00'])
         .range([this.margin.left, this.width - this.margin.right])
