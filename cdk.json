@@ -1,5 +1,8 @@
 {
   "app": "python3 cdk/app.py",
   "requireApproval": "broadening",
-  "versionReporting": false
+  "versionReporting": false,
+  "context": {
+    "domainName": "demo.training"
+  }
 }

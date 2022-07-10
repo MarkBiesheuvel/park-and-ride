@@ -4,6 +4,7 @@ from constructs import Construct
 from datastore import Datastore
 from importer import Importer
 from api import Api
+from website import Website
 from aws_cdk import (
     App,
     Environment,
@@ -37,6 +38,7 @@ class ParkAndRideStack(Stack):
         # Ok
         importer = Importer(self, 'Importer', datastore=datastore)
         api = Api(self, 'Api', datastore=datastore)
+        website = Website(self, 'Website')
 
 
 app = App()
